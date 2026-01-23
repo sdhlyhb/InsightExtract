@@ -17,7 +17,7 @@ The goal is a fast, privacy‑respecting study companion that works in the brows
 - **Flashcard generation** (Q/A, cloze deletions, concept → definition) with quality checks.
 - **Spaced repetition** (SM‑2 variant) and study sessions with progress tracking.
 - **Responsive UI** with React + Tailwind.
-- **API** in Node.js (TypeScript, **NestJS**) _or_ **FastAPI** (Python) with Postgres.
+- **API** in **FastAPI** (Python) with Postgres.
 - **Vector search (pgvector)** for retrieval‑augmented generation (RAG).
 - **MCP tools** to cleanly separate capabilities (pdf loading, text chunking, embeddings, retriever, flashcard writer, srs scheduler).
 - **CI/CD** pipeline and one‑click deploy.
@@ -57,10 +57,10 @@ The goal is a fast, privacy‑respecting study companion that works in the brows
                           │         │
          ┌────────────────▼─────────▼────────────────┐
          │           API Service (Backend)           │
-         │  Option A: Node.js (NestJS + TS)          │
+         │          │
          │  Option B: FastAPI (Python)               │
          │                                            │
-         │  • Uploads (S3/Azure Blob/Disk)            │
+         │           │
          │  • Task Orchestrator (queue)               │
          │  • MCP Client → Tools                      │
          │  • RAG Pipeline                            │
@@ -91,7 +91,6 @@ MCP Tools (managed by backend):
 
 ### Backend (choose one; both plans provided)
 
-- **Option A — Node.js**: **NestJS + TypeScript**, **BullMQ** (Redis) for background tasks.
 - **Option B — FastAPI**: **FastAPI**, **RQ/Celery** (Redis) or **Arq** for tasks.
 
 ### LLM & Embeddings

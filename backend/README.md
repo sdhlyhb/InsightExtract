@@ -1,330 +1,126 @@
-# InsightExtract Backend
+# InsightExtract Backend (FastAPI)
 
-NestJS-based backend API for InsightExtract - transforms PDFs into structured knowledge and flashcards.
+FastAPI backend for InsightExtract - PDF-to-flashcard conversion with spaced repetition.
 
-## Features
+## Setup
 
-- 📄 **PDF Processing** - Extract text from PDF documents
-- 📊 **Document Analysis** - Generate outlines and main points
-- 🎴 **Flashcard Generation** - Auto-create study cards with citations
-- 🧠 **Spaced Repetition** - SM-2 algorithm implementation
-- ⚡ **Background Jobs** - Bull queue for async processing
-- 🗄️ **PostgreSQL** - Persistent data storage
-- 📡 **SSE** - Real-time job progress updates
-
-## Tech Stack
-
-- **NestJS** - Progressive Node.js framework
-- **TypeScript** - Type-safe development
-- **TypeORM** - ORM for PostgreSQL
-- **Bull** - Redis-based queue
-- **PostgreSQL** - Primary database
-- **Redis** - Queue and caching
-- **pdf-parse** - PDF text extraction
-
-## Prerequisites
-
-- Node.js 18+
-- PostgreSQL 15+
-- Redis 7+
-
-## Quick Start
-
-### 1. Install Dependencies
+### Quick Start with Docker
 
 ```bash
-cd backend
-npm install
-```
-
-### 2. Set Up Database
-
-Create a PostgreSQL database:
-
-```bash
-createdb insight_extract
-```
-
-Or using psql:
-
-```sql
-CREATE DATABASE insight_extract;
-```
-
-### 3. Configure Environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-
-```env
-PORT=3000
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USERNAME=postgres
-DATABASE_PASSWORD=your_password
-DATABASE_NAME=insight_extract
-REDIS_HOST=localhost
-REDIS_PORT=6379
-```
-
-### 4. Start Redis
-
-```bash
-# Using Docker
-docker run -d -p 6379:6379 redis:7-alpine
-
-# Or using Homebrew on macOS
-brew services start redis
-```
-
-### 5. Run the Application
-
-Development mode:
-
-```bash
-npm run start:dev
-```
-
-Production mode:
-
-```bash
-npm run build
-npm run start:prod
-```
-
-The API will be available at `http://localhost:3000/api`
-
-## Using Docker Compose (Recommended)
-
-The easiest way to run the backend with all dependencies:
-
-```bash
-cd backend
+# Start services
 docker-compose up -d
+
+# API will be available at http://localhost:8000
+# Worker will start automatically in the api container
 ```
 
-This starts:
-
-- PostgreSQL on port 5432
-- Redis on port 6379
-- Backend API on port 3000
-
-## API Endpoints
-
-### Documents
-
-- `POST /api/documents` - Upload PDF or create text document
-- `GET /api/documents` - List all documents
-- `GET /api/documents/:id` - Get document details
-- `GET /api/documents/:id/outline` - Get document outline
-- `GET /api/documents/:id/decks` - Get document flashcard decks
-- `POST /api/documents/:id/generate` - Generate flashcards
-- `DELETE /api/documents/:id` - Delete document
-
-### Decks
-
-- `GET /api/decks/:id` - Get deck details
-- `GET /api/decks/:id/cards` - Get all cards in deck
-- `DELETE /api/decks/:id` - Delete deck
-
-### Cards
-
-- `GET /api/cards/:id` - Get card details
-- `PATCH /api/cards/:id` - Update card
-- `POST /api/cards/:id/review` - Submit card review (SRS)
-- `DELETE /api/cards/:id` - Delete card
-
-### Jobs
-
-- `GET /api/jobs/:id` - Get job status
-- `GET /api/jobs/:id/stream` - SSE stream for job progress
-
-## Example Usage
-
-### Upload a PDF
+### Local Development
 
 ```bash
-curl -X POST http://localhost:3000/api/documents \
-  -F "file=@document.pdf"
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your settings (OPENAI_API_KEY is required!)
+
+# Run migrations
+alembic upgrade head
+
+# Start API server
+uvicorn app.main:app --reload --port 8000
+
+# In another terminal, start the background worker
+python worker.py
 ```
-
-Response:
-
-```json
-{
-  "id": "uuid",
-  "title": "document.pdf",
-  "sourceType": "pdf",
-  "status": "processing",
-  "createdAt": "2026-01-23T..."
-}
-```
-
-### Upload Text
-
-```bash
-curl -X POST http://localhost:3000/api/documents \
-  -H "Content-Type: application/json" \
-  -d '{
-    "rawText": "Your text content here",
-    "sourceType": "text"
-  }'
-```
-
-### Get Document Outline
-
-```bash
-curl http://localhost:3000/api/documents/{id}/outline
-```
-
-### Review a Card (SRS)
-
-```bash
-curl -X POST http://localhost:3000/api/cards/{id}/review \
-  -H "Content-Type: application/json" \
-  -d '{"quality": 4}'
-```
-
-Quality scale (0-5):
-
-- 0: Complete blackout
-- 1-2: Incorrect
-- 3: Correct with difficulty
-- 4: Correct
-- 5: Perfect recall
-
-## Database Schema
-
-### Documents
-
-- Stores uploaded PDFs and text
-- Tracks processing status
-- Contains outline and main points
-
-### Decks
-
-- Groups flashcards by document
-- Stores tags
-
-### Cards
-
-- Individual flashcards (QA, Cloze, True/False)
-- SM-2 algorithm fields (ease, interval, repetition)
-- Due dates for spaced repetition
-- Citations from source document
-
-### Jobs
-
-- Tracks background processing tasks
-- Stores progress and results
-
-## Development
-
-### Run Tests
-
-```bash
-npm test
-```
-
-### Watch Mode
-
-```bash
-npm run test:watch
-```
-
-### Lint
-
-```bash
-npm run lint
-```
-
-### Format
-
-```bash
-npm run format
-```
-
-## Architecture
-
-```
-┌─────────────────┐
-│   Controllers   │  HTTP endpoints
-└────────┬────────┘
-         │
-┌────────▼────────┐
-│    Services     │  Business logic
-└────────┬────────┘
-         │
-┌────────▼────────┐
-│  Repositories   │  Data access (TypeORM)
-└────────┬────────┘
-         │
-┌────────▼────────┐
-│   PostgreSQL    │  Database
-└─────────────────┘
-
-Background Processing:
-┌─────────────────┐
-│  Bull Queues    │  Async jobs
-└────────┬────────┘
-         │
-┌────────▼────────┐
-│   Processors    │  Job handlers
-└─────────────────┘
-```
-
-## Modules
-
-- **DocumentModule** - Document upload and management
-- **DeckModule** - Flashcard deck operations
-- **CardModule** - Individual card CRUD and SRS
-- **PipelineModule** - Background processing jobs
 
 ## Environment Variables
 
-| Variable          | Description     | Default         |
-| ----------------- | --------------- | --------------- |
-| PORT              | Server port     | 3000            |
-| DATABASE_HOST     | PostgreSQL host | localhost       |
-| DATABASE_PORT     | PostgreSQL port | 5432            |
-| DATABASE_USERNAME | DB username     | postgres        |
-| DATABASE_PASSWORD | DB password     | postgres        |
-| DATABASE_NAME     | Database name   | insight_extract |
-| REDIS_HOST        | Redis host      | localhost       |
-| REDIS_PORT        | Redis port      | 6379            |
+Required:
 
-## Future Enhancements
+- `OPENAI_API_KEY` - Your OpenAI API key for embeddings and LLM
+- `DATABASE_URL` - PostgreSQL connection string
+- `REDIS_URL` - Redis connection string for background jobs
 
-- [ ] OpenAI integration for real LLM-based extraction
-- [ ] pgvector for embeddings and RAG
-- [ ] Azure Blob Storage for file persistence
-- [ ] Authentication and authorization
-- [ ] Multi-tenancy support
-- [ ] Advanced analytics and statistics
-- [ ] Export to Anki format
-- [ ] OCR for scanned PDFs
+Optional:
 
-## Troubleshooting
+- `ANTHROPIC_API_KEY` - Anthropic API key (future use)
+- Azure OpenAI settings for Azure-hosted models
 
-### Database Connection Failed
+## API Documentation
 
-- Ensure PostgreSQL is running
-- Check credentials in `.env`
-- Verify database exists
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-### Redis Connection Failed
+## Project Structure
 
-- Ensure Redis is running
-- Check Redis host/port in `.env`
+```
+backend/
+├── app/
+│   ├── main.py              # FastAPI application
+│   ├── config.py            # Settings
+│   ├── database.py          # Database connection
+│   ├── models.py            # SQLAlchemy models
+│   ├── schemas.py           # Pydantic schemas
+│   ├── routers/             # API endpoints
+│   │   ├── documents.py     # Document CRUD & upload
+│   │   ├── decks.py         # Deck management
+│   │   ├── cards.py         # Flashcard & review
+│   │   ├── jobs.py          # Job status & SSE streaming
+│   │   └── search.py        # Vector similarity search
+│   ├── services/            # Business logic
+│   │   ├── pdf.py           # PDF extraction & chunking
+│   │   ├── embedding.py     # OpenAI embedding generation
+│   │   └── llm.py           # Outline & flashcard generation
+│   └── tasks/               # Background jobs
+│       └── pipeline.py      # Document processing pipeline
+├── worker.py                # Arq background worker
+├── requirements.txt         # Python dependencies
+├── Dockerfile              # Container image
+└── docker-compose.yml      # Multi-container setup
+```
 
-### Port Already in Use
+## How It Works
 
-- Change PORT in `.env`
-- Kill process using port: `lsof -ti:3000 | xargs kill`
+### Document Processing Pipeline
 
-## License
+1. **Upload**: User uploads PDF via `/api/documents`
+2. **Extract**: Background worker extracts text using pdfplumber
+3. **Chunk**: Text is split into overlapping segments
+4. **Embed**: OpenAI generates embeddings for each chunk
+5. **Store**: Chunks and embeddings saved to PostgreSQL with pgvector
+6. **Analyze**: LLM generates document outline and main points
+7. **Generate**: User triggers flashcard generation via `/api/documents/{id}/generate`
+8. **Cards**: LLM creates Q/A, cloze, and true/false flashcards with citations
 
-See LICENSE file for details.
+### Background Worker
+
+The Arq worker (`worker.py`) processes long-running tasks:
+
+- `process_document`: Full PDF processing pipeline (steps 2-6)
+- `generate_flashcards_task`: Creates flashcard deck from document
+
+Jobs are tracked in the database with real-time progress updates via Server-Sent Events.
+│ ├── schemas.py # Pydantic schemas
+│ ├── routers/ # API endpoints
+│ ├── services/ # Business logic
+│ └── tasks/ # Background jobs
+├── alembic/ # Database migrations
+├── requirements.txt
+└── docker-compose.yml
+
+```
+
+## Key Features
+
+- 🚀 Async FastAPI with PostgreSQL + pgvector
+- 📝 PDF text extraction
+- 🧠 SM-2 spaced repetition algorithm
+- 🔍 Vector similarity search (ready for RAG)
+- 📊 Server-Sent Events for progress updates
+- 🐳 Docker Compose for easy deployment
+```
