@@ -1,12 +1,18 @@
 export interface Document {
   id: string;
   title: string;
-  sourceType: "pdf" | "text" | "url";
+  sourceType: "pdf" | "text" | "url" | "docx";
+  kind?: "document" | "flashcards-csv";
   status: "uploaded" | "processing" | "completed" | "failed";
   createdAt: string;
   updatedAt: string;
   fileSize?: number;
   pageCount?: number;
+  mimeType?: string;
+  content?: string;
+  sourceFileName?: string;
+  cardCount?: number;
+  meta?: Record<string, any>;
 }
 
 export interface Outline {
@@ -67,17 +73,6 @@ export interface Review {
   cardId: string;
   quality: 0 | 1 | 2 | 3 | 4 | 5;
   timestamp: string;
-}
-
-export interface Job {
-  id: string;
-  documentId: string;
-  type: "extract" | "embed" | "summarize" | "cards";
-  status: "pending" | "running" | "completed" | "failed";
-  progress: number;
-  message?: string;
-  createdAt: string;
-  completedAt?: string;
 }
 
 export interface ApiError {

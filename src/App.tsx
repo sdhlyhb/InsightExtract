@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import { DocumentPage } from "./pages/DocumentPage";
 import { DeckPage } from "./pages/DeckPage";
+import { DecksListPage } from "./pages/DecksListPage";
 import { StudySessionPage } from "./pages/StudySessionPage";
+import { FlashcardsCreatePage } from "./pages/FlashcardsCreatePage";
 import { Layout } from "./components/Layout";
 
 const queryClient = new QueryClient({
@@ -24,6 +26,11 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="documents/:id" element={<DocumentPage />} />
+            <Route
+              path="flashcards/create"
+              element={<FlashcardsCreatePage />}
+            />
+            <Route path="decks" element={<DecksListPage />} />
             <Route path="decks/:id" element={<DeckPage />} />
             <Route path="study/:deckId" element={<StudySessionPage />} />
           </Route>

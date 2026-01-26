@@ -56,8 +56,14 @@ class DocumentResponse(BaseModel):
     title: str
     source_type: DocumentSourceType
     status: DocumentStatus
+    kind: Optional[str] = None
     file_size: Optional[int] = None
     page_count: Optional[int] = None
+    mime_type: Optional[str] = None
+    content: Optional[str] = None
+    source_file_name: Optional[str] = None
+    card_count: Optional[int] = None
+    meta: Optional[Dict[str, Any]] = None
     created_at: datetime
     updated_at: datetime
 
@@ -65,11 +71,29 @@ class DocumentResponse(BaseModel):
 
 
 # Deck Schemas
+class CardCreateInput(BaseModel):
+    """Card creation input for deck creation."""
+    
+    front: str = Field(..., min_length=1)
+    back: str = Field(..., min_length=1)
+    type: FlashcardType = FlashcardType.QA
+    tags: List[str] = []
+
+
+class DeckCreate(BaseModel):
+    """Deck creation schema."""
+    
+    title: str = Field(..., min_length=1, max_length=500)
+    documentId: Optional[UUID] = None
+    cards: List[CardCreateInput] = []
+    tags: List[str] = []
+
+
 class DeckResponse(BaseModel):
     """Deck response schema."""
 
     id: UUID
-    document_id: UUID
+    document_id: Optional[UUID] = None
     title: str
     card_count: int
     due_count: int

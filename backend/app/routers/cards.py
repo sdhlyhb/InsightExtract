@@ -114,3 +114,24 @@ async def review_card(
     await db.refresh(card)
 
     return card
+
+
+@router.delete("/{card_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_card(
+    card_id: UUID,
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """Delete a card and its associated reviews."""
+    result = await db.execute(
+        select(Card).where(Card.id == card_id)
+    )
+    card = result.scalar_one_or_none()
+
+    if not card:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Card not found",
+        )
+
+    await db.delete(card)
+    await db.commit()

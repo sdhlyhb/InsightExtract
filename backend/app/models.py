@@ -56,6 +56,13 @@ class FlashcardType(str, enum.Enum):
     TRUEFALSE = "truefalse"
 
 
+class DocumentKind(str, enum.Enum):
+    """Document kind enum for different document types."""
+
+    DOCUMENT = "document"
+    FLASHCARDS_CSV = "flashcards-csv"
+
+
 class Document(Base):
     """Document model."""
 
@@ -64,12 +71,19 @@ class Document(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     title = Column(String(500), nullable=False)
     source_type = Column(Enum(DocumentSourceType), nullable=False)
+    kind = Column(Enum(DocumentKind), default=DocumentKind.DOCUMENT, nullable=False)
     status = Column(Enum(DocumentStatus), default=DocumentStatus.UPLOADED, nullable=False)
     file_size = Column(Integer, nullable=True)
     page_count = Column(Integer, nullable=True)
     file_hash = Column(String(64), nullable=True, index=True)
     outline = Column(JSON, nullable=True)
     main_points = Column(JSON, nullable=True)
+    content = Column(Text, nullable=True)  # For CSV content storage
+    mime_type = Column(String(100), nullable=True)  # For CSV: "text/csv"
+    source_file_name = Column(String(500), nullable=True)  # Original uploaded file name
+    step2_digest = Column(String(64), nullable=True)  # Hash of Step 2 results
+    card_count = Column(Integer, nullable=True)  # For CSV: number of flashcards
+    meta = Column(JSON, nullable=True)  # Additional metadata
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -120,7 +134,7 @@ class Deck(Base):
     __tablename__ = "decks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
+    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=True)
     title = Column(String(500), nullable=False)
     tags = Column(JSON, default=list, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

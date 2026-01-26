@@ -12,7 +12,7 @@ from sqlalchemy.orm import selectinload
 
 from app.config import get_settings
 from app.database import get_db
-from app.models import Deck, Document, DocumentSourceType, DocumentStatus, Job
+from app.models import Deck, Document, DocumentSourceType, DocumentStatus, DocumentKind, Job
 from app.schemas import DeckResponse, DocumentOutline, DocumentResponse, OutlineNode, AnalyzeTextRequest
 
 settings = get_settings()
@@ -206,6 +206,21 @@ async def analyze_text(
         )
 
 
+@router.get("/recent", response_model=List[DocumentResponse])
+async def get_recent_documents(
+    limit: int = 10,
+    db: AsyncSession = Depends(get_db),
+) -> List[Document]:
+    """Get recent documents including flashcard CSVs."""
+    result = await db.execute(
+        select(Document)
+        .order_by(Document.created_at.desc())
+        .limit(limit)
+    )
+    documents = result.scalars().all()
+    return documents
+
+
 @router.get("/{document_id}", response_model=DocumentResponse)
 async def get_document(
     document_id: UUID,
@@ -366,3 +381,71 @@ async def delete_document(
 
     await db.delete(document)
     await db.commit()
+
+
+@router.post("/flashcards", status_code=status.HTTP_201_CREATED)
+async def save_flashcards_csv(
+    data: dict = Body(...),
+    db: AsyncSession = Depends(get_db),
+) -> dict:
+    """Save flashcards CSV to database."""
+    # Validate required fields
+    if not data.get("name"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing required field: name",
+        )
+    if not data.get("content"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Missing required field: content",
+        )
+    
+    # Validate MIME type
+    mime_type = data.get("mimeType", "text/csv")
+    if mime_type != "text/csv":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only text/csv MIME type is supported",
+        )
+    
+    # Validate size
+    size = data.get("size", len(data["content"]))
+    if size > 10 * 1024 * 1024:  # 10MB limit
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="CSV file too large (max 10MB)",
+        )
+    
+    # Extract metadata
+    meta = data.get("meta", {})
+    card_count = meta.get("cardCount", 0)
+    step2_digest = meta.get("step2Digest")
+    
+    # Create document record
+    document = Document(
+        title=data["name"],
+        source_type=DocumentSourceType.TEXT,
+        kind=DocumentKind.FLASHCARDS_CSV,
+        mime_type=mime_type,
+        file_size=size,
+        content=data["content"],
+        source_file_name=data.get("sourceFileName"),
+        step2_digest=step2_digest,
+        card_count=card_count,
+        meta=meta,
+        status=DocumentStatus.COMPLETED,
+    )
+    
+    db.add(document)
+    await db.commit()
+    await db.refresh(document)
+    
+    return {
+        "id": str(document.id),
+        "name": document.title,
+        "mimeType": document.mime_type,
+        "size": document.file_size,
+        "cardCount": document.card_count,
+        "createdAt": document.created_at.isoformat(),
+    }

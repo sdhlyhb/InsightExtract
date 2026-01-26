@@ -34,12 +34,24 @@ class LLMService:
         Returns:
             Dictionary with both outline and main_points
         """
-        prompt = f"""Analyze the following document and provide both a hierarchical outline and extract the {max_points} most important main points.
+        prompt = f"""Analyze the following text extracted from a long PDF/DOCX document. 
+Your task is to produce a highly accurate, concise summary of only the main points.
+These summaries will be used to create study flashcards later, so each point should be:
+
+• Precise and self-contained  
+• Not overly long  
+• Focused on core ideas, definitions, or actionable facts  
+• Free of fluff, examples, or repetition  
+• Organized in bullet points grouped by topic
+
+If the document contains sections, headings, or conceptual groupings, preserve that structure in the summary.
 
 Document text:
-{text[:8000]}  # Truncate for context limits
+--------------------
+{text[:8000]}
+--------------------
 
-Create a JSON response with this EXACT structure:
+You must respond with a JSON object in this EXACT structure:
 {{
   "outline": {{
     "title": "Document title",
@@ -70,28 +82,40 @@ Create a JSON response with this EXACT structure:
         }}
       ]
     }}
+  ],
+  "key_terms": [
+    {{
+      "term": "Term name",
+      "definition": "Clear, concise definition"
+    }}
   ]
 }}
 
-For the OUTLINE, focus on identifying:
-- Main topics and themes
-- Key arguments or methods
-- Important findings or conclusions
-- Logical flow and structure
+For the OUTLINE:
+- Identify main topics and themes
+- Preserve document structure (sections, headings)
+- Show logical flow and hierarchy
 
-For the MAIN POINTS, focus on:
-- Key arguments and claims
-- Important findings or results
-- Significant conclusions
-- Novel insights or contributions
+For the MAIN POINTS:
+- Extract up to {max_points} most important points
+- Each point must be precise and self-contained
+- Focus on core ideas, definitions, or actionable facts
+- Free of fluff, examples, or repetition
+- Include brief explanations for context
 
+For KEY TERMS (if applicable):
+- List important terms with clear definitions
+- Only include terms that are central to understanding the document
+
+Do NOT include opinions or interpretations.
+Do NOT omit any essential concepts.
 Return ONLY the JSON, no additional text."""
         
         try:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are an expert at analyzing documents and creating structured outlines and summaries."},
+                    {"role": "system", "content": "You are an expert at analyzing documents and creating structured outlines and summaries for study purposes. You always respond with valid JSON."},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3,
