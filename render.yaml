@@ -1,0 +1,70 @@
+services:
+  # Web service (combines frontend + backend)
+  - type: web
+    name: insightextract
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: insightextract-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: insightextract-redis
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: insightextract-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: insightextract-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: insightextract-db
+          property: database
+
+  # Background worker
+  - type: worker
+    name: insightextract-worker
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    dockerCommand: python worker.py
+    plan: starter
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: insightextract-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: insightextract-redis
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
+
+databases:
+  - name: insightextract-db
+    databaseName: insightextract
+    plan: starter
+    ipAllowList: []
+
+  - name: insightextract-redis
+    plan: starter
+    ipAllowList: []

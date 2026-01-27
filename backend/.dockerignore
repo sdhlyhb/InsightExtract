@@ -1,0 +1,71 @@
+# Python cache
+
+**pycache**/
+_.py[cod]
+_$py.class
+\*.so
+.Python
+
+# Virtual environments
+
+venv/
+env/
+ENV/
+
+# Testing
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# IDE
+
+.vscode/
+.idea/
+_.swp
+_.swo
+
+# Environment
+
+.env
+.env.local
+
+# Documentation
+
+\*.md
+!README.md
+
+# Git
+
+.git/
+.gitignore
+
+# Frontend files (since this is backend Dockerfile)
+
+node_modules/
+dist/
+build/
+src/
+public/
+index.html
+package.json
+package-lock.json
+vite.config.ts
+tsconfig.json
+tailwind.config.js
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# CI/CD
+
+.github/
+
+# Docker
+
+Dockerfile
+docker-compose.yml
+.dockerignore

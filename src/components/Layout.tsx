@@ -166,12 +166,7 @@ export function Layout() {
                   aria-label="GitHub">
                   <Github className="h-4 w-4 group-hover:scale-110 transition-transform" />
                 </a>
-                <a
-                  href="#"
-                  className="h-9 w-9 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center group"
-                  aria-label="Twitter">
-                  <Twitter className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                </a>
+
                 <a
                   href="#"
                   className="h-9 w-9 rounded-lg bg-muted hover:bg-primary/10 hover:text-primary transition-all flex items-center justify-center group"
