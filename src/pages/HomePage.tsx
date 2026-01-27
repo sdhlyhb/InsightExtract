@@ -1167,69 +1167,75 @@ export function HomePage() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {recentDocuments.map((doc) => {
-                      const isSummary =
-                        doc.kind === "summary" ||
-                        doc.mimeType === "application/json";
-                      // Fix date display with proper formatting
-                      const date = new Date(
-                        (doc as any).created_at || doc.createdAt,
-                      );
-                      const formattedDate =
-                        date.toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        }) +
-                        " • " +
-                        date.toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                          hour12: true,
-                        });
+                    {recentDocuments
+                      .filter(
+                        (doc) =>
+                          doc.kind === "summary" ||
+                          doc.mimeType === "application/json",
+                      )
+                      .map((doc) => {
+                        const isSummary =
+                          doc.kind === "summary" ||
+                          doc.mimeType === "application/json";
+                        // Fix date display with proper formatting
+                        const date = new Date(
+                          (doc as any).created_at || doc.createdAt,
+                        );
+                        const formattedDate =
+                          date.toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          }) +
+                          " • " +
+                          date.toLocaleTimeString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          });
 
-                      return (
-                        <div
-                          key={doc.id}
-                          className="flex items-start sm:items-center gap-2 p-2 sm:p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                          <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0 mt-1 sm:mt-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium truncate text-xs sm:text-sm">
-                              {doc.title}
-                              {isSummary && (
-                                <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-muted-foreground">
-                                  (Summary)
-                                </span>
-                              )}
+                        return (
+                          <div
+                            key={doc.id}
+                            className="flex items-start sm:items-center gap-2 p-2 sm:p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+                            <FileText className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0 mt-1 sm:mt-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium truncate text-xs sm:text-sm">
+                                {doc.title}
+                                {isSummary && (
+                                  <span className="ml-1 sm:ml-2 text-[10px] sm:text-xs text-muted-foreground">
+                                    (Summary)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
+                                {formattedDate}
+                              </div>
                             </div>
-                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
-                              {formattedDate}
+                            <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenSummaryModal(doc.id)}
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+                                aria-label="View document">
+                                <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteDocument(doc.id, doc.title);
+                                }}
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive"
+                                aria-label="Delete document">
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex gap-0.5 sm:gap-1 flex-shrink-0">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenSummaryModal(doc.id)}
-                              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
-                              aria-label="View document">
-                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeleteDocument(doc.id, doc.title);
-                              }}
-                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive"
-                              aria-label="Delete document">
-                              <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
                   </div>
                 )}
               </CardContent>
