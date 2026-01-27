@@ -22,9 +22,6 @@ async def lifespan(app: FastAPI):
     from app.models import Base
     
     async with engine.begin() as conn:
-        # Create pgvector extension
-        from sqlalchemy import text
-        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         # Create tables
         await conn.run_sync(Base.metadata.create_all)
     

@@ -40,7 +40,7 @@ export function LandingPage() {
 
           {/* Key Features */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 px-4">
-            <Card className="border-2 hover:shadow-lg transition-shadow">
+            <Card className="border-2 hover:shadow-lg transition-shadow pt-4">
               <CardContent className="pt-6 text-center">
                 <div className="h-12 w-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
                   <Upload className="h-6 w-6 text-primary" />
@@ -54,7 +54,7 @@ export function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:shadow-lg transition-shadow">
+            <Card className="border-2 hover:shadow-lg transition-shadow pt-4">
               <CardContent className="pt-6 text-center">
                 <div className="h-12 w-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
                   <Brain className="h-6 w-6 text-primary" />
@@ -68,7 +68,7 @@ export function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:shadow-lg transition-shadow">
+            <Card className="border-2 hover:shadow-lg transition-shadow pt-4">
               <CardContent className="pt-6 text-center">
                 <div className="h-12 w-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
                   <Zap className="h-6 w-6 text-primary" />
@@ -82,7 +82,7 @@ export function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-2 hover:shadow-lg transition-shadow">
+            <Card className="border-2 hover:shadow-lg transition-shadow pt-4">
               <CardContent className="pt-6 text-center">
                 <div className="h-12 w-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
                   <Target className="h-6 w-6 text-primary" />
@@ -100,7 +100,7 @@ export function LandingPage() {
 
         {/* Additional Info Section */}
         <div className="mt-12 sm:mt-16 px-4">
-          <Card>
+          <Card className="pt-4">
             <CardContent className="pt-6">
               <h2 className="text-2xl font-bold mb-4 text-center">
                 How It Works
@@ -109,21 +109,21 @@ export function LandingPage() {
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2">1</div>
                   <h3 className="font-semibold mb-2">Upload</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground text-pretty">
                     Upload your PDF or Word document for instant text extraction
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2">2</div>
                   <h3 className="font-semibold mb-2">Analyze</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground text-pretty">
                     AI generates summaries, key points, and important terms
                   </p>
                 </div>
                 <div className="text-center">
                   <div className="text-4xl font-bold text-primary mb-2">3</div>
                   <h3 className="font-semibold mb-2">Study</h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground text-pretty">
                     Create flashcards and study with spaced repetition
                   </p>
                 </div>
