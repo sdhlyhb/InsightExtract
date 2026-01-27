@@ -1,14 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Play,
-  Download,
-  AlertCircle,
-  Search,
-  CheckSquare,
-  Square,
-} from "lucide-react";
+import { ArrowLeft, Download, AlertCircle } from "lucide-react";
 import { FlashcardEditor } from "@/components/FlashcardEditor";
 import {
   Card,
@@ -27,12 +19,6 @@ export function DeckPage() {
   const [cards, setCards] = useState<Flashcard[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCardIds, setSelectedCardIds] = useState<Set<string>>(
-    new Set(),
-  );
-  const [flippedCards, setFlippedCards] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"grid" | "editor">("grid");
 
   // Fetch deck and cards on mount
@@ -106,23 +92,6 @@ export function DeckPage() {
     fetchDeckData();
   }, [id]);
 
-  // Filter cards by tag and search query
-  const filteredCards = cards.filter((card) => {
-    const matchesTag = selectedTag ? card.tags.includes(selectedTag) : true;
-    const matchesSearch =
-      !searchQuery ||
-      card.front.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      card.back.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesTag && matchesSearch;
-  });
-
-  // Get unique cards (dedupe by front+back)
-  const uniqueCards = Array.from(
-    new Map(
-      filteredCards.map((card) => [`${card.front}||${card.back}`, card]),
-    ).values(),
-  );
-
   const handleUpdateCard = (cardId: string, updates: Partial<Flashcard>) => {
     setCards((prev) =>
       prev.map((card) => (card.id === cardId ? { ...card, ...updates } : card)),
@@ -146,13 +115,6 @@ export function DeckPage() {
       // Remove card from local state
       setCards((prev) => prev.filter((card) => card.id !== cardId));
 
-      // Remove from selected cards if it was selected
-      setSelectedCardIds((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(cardId);
-        return newSet;
-      });
-
       // Update deck counts
       if (deck) {
         setDeck({
@@ -166,80 +128,11 @@ export function DeckPage() {
     }
   };
 
-  const handleStartStudy = () => {
-    if (deck) {
-      console.log("=== Study Session Start ===");
-      console.log("Selected card IDs:", Array.from(selectedCardIds));
-      console.log("All unique cards count:", uniqueCards.length);
-
-      // Use selected cards or all cards
-      const cardsToStudy =
-        selectedCardIds.size > 0
-          ? cards.filter((card) => selectedCardIds.has(card.id))
-          : cards;
-
-      console.log("Cards to study count:", cardsToStudy.length);
-      console.log(
-        "Cards to study IDs:",
-        cardsToStudy.map((c) => c.id),
-      );
-
-      if (cardsToStudy.length === 0) {
-        alert("No cards to study. Please select at least one card.");
-        return;
-      }
-
-      // Store cards in sessionStorage for study mode
-      const cardIds = cardsToStudy.map((c) => c.id);
-      console.log("Storing cards for study:", cardIds);
-      sessionStorage.setItem("studyCards", JSON.stringify(cardIds));
-
-      // Verify storage
-      const stored = sessionStorage.getItem("studyCards");
-      console.log("Verified stored cards:", stored);
-      console.log("=== Navigating to study page ===");
-
-      navigate(`/study/${deck.id}`);
-    }
-  };
-
   const handleExport = () => {
     // TODO: Implement export
     if (deck) {
       console.log("Export deck:", deck.id);
     }
-  };
-
-  const handleToggleCardSelection = (cardId: string) => {
-    setSelectedCardIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(cardId)) {
-        newSet.delete(cardId);
-      } else {
-        newSet.add(cardId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleSelectAll = () => {
-    setSelectedCardIds(new Set(uniqueCards.map((card) => card.id)));
-  };
-
-  const handleDeselectAll = () => {
-    setSelectedCardIds(new Set());
-  };
-
-  const handleFlipCard = (cardId: string) => {
-    setFlippedCards((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(cardId)) {
-        newSet.delete(cardId);
-      } else {
-        newSet.add(cardId);
-      }
-      return newSet;
-    });
   };
 
   // Loading state
@@ -357,31 +250,16 @@ export function DeckPage() {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button
-              onClick={handleStartStudy}
-              disabled={uniqueCards.length === 0}>
-              <Play className="h-4 w-4 mr-2" />
-              Study
-              {selectedCardIds.size > 0
-                ? ` (${selectedCardIds.size})`
-                : ` (${uniqueCards.length})`}
-            </Button>
           </div>
         </div>
       </div>
 
       <Card className="mb-6">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>All Flashcards</CardTitle>
-              <CardDescription>
-                {selectedCardIds.size > 0
-                  ? `${selectedCardIds.size} card${selectedCardIds.size !== 1 ? "s" : ""} selected`
-                  : "Select cards to study"}
-              </CardDescription>
-            </div>
-          </div>
+          <CardTitle>All Flashcards</CardTitle>
+          <CardDescription>
+            {cards.length} card{cards.length !== 1 ? "s" : ""} in this deck
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {/* View Mode Tabs */}
@@ -406,139 +284,54 @@ export function DeckPage() {
             </button>
           </div>
 
-          {/* Search and Filter Controls */}
-          <div className="mb-4 space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search flashcards..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border rounded-md"
-              />
-            </div>
-
-            <div className="flex gap-2 items-center flex-wrap">
-              {viewMode === "grid" && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleSelectAll}
-                    disabled={uniqueCards.length === 0}>
-                    <CheckSquare className="h-4 w-4 mr-2" />
-                    Select All
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDeselectAll}
-                    disabled={selectedCardIds.size === 0}>
-                    <Square className="h-4 w-4 mr-2" />
-                    Deselect All
-                  </Button>
-                </>
-              )}
-              {deck.tags.length > 0 && (
-                <div className="flex gap-2 items-center">
-                  <span className="text-sm text-muted-foreground">Filter:</span>
-                  <Button
-                    variant={selectedTag === null ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedTag(null)}>
-                    All
-                  </Button>
-                  {deck.tags.map((tag) => (
-                    <Button
-                      key={tag}
-                      variant={selectedTag === tag ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setSelectedTag(tag)}>
-                      {tag}
-                    </Button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Cards Display - Grid or Editor Mode */}
-          {uniqueCards.length === 0 ? (
+          {cards.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No cards match your search criteria.
+              No cards in this deck.
             </div>
           ) : viewMode === "grid" ? (
-            <div className="grid gap-4 md:grid-cols-2 max-h-[600px] overflow-y-auto">
-              {uniqueCards.map((card) => {
-                const isFlipped = flippedCards.has(card.id);
-                const isSelected = selectedCardIds.has(card.id);
-
-                return (
-                  <div
-                    key={card.id}
-                    className={`border rounded-lg transition-all ${
-                      isSelected ? "ring-2 ring-primary" : ""
-                    }`}>
-                    {/* Selection Checkbox */}
-                    <div className="p-3 border-b flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggleCardSelection(card.id)}
-                        className="flex items-center gap-2 hover:opacity-70">
-                        {isSelected ? (
-                          <CheckSquare className="h-5 w-5 text-primary" />
-                        ) : (
-                          <Square className="h-5 w-5" />
-                        )}
-                      </button>
-                      <span className="text-xs text-muted-foreground flex-1">
-                        {card.type.toUpperCase()}
-                      </span>
-                      {card.tags.length > 0 && (
-                        <div className="flex gap-1">
-                          {card.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="text-xs px-2 py-1 bg-muted rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Card Content */}
-                    <div
-                      className="p-4 cursor-pointer min-h-[120px] flex flex-col"
-                      onClick={() => handleFlipCard(card.id)}>
-                      {!isFlipped ? (
-                        <div className="flex-1">
-                          <div className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded mb-2">
-                            Q:
-                          </div>
-                          <p className="text-lg font-bold">{card.front}</p>
-                        </div>
-                      ) : (
-                        <div className="flex-1">
-                          <div className="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded mb-2">
-                            A:
-                          </div>
-                          <p className="text-base">{card.back}</p>
-                        </div>
-                      )}
-                      <div className="text-center mt-4">
-                        <span className="text-xs text-muted-foreground">
-                          Click to flip
-                        </span>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 max-h-[600px] overflow-y-auto">
+              {cards.map((card) => (
+                <div key={card.id} className="border rounded-lg">
+                  <div className="p-3 border-b flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground flex-1">
+                      {card.type.toUpperCase()}
+                    </span>
+                    {card.tags.length > 0 && (
+                      <div className="flex gap-1">
+                        {card.tags.slice(0, 2).map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-xs px-2 py-1 bg-muted rounded">
+                            {tag}
+                          </span>
+                        ))}
                       </div>
+                    )}
+                  </div>
+
+                  <div className="p-4 min-h-[160px] flex flex-col gap-3">
+                    <div>
+                      <div className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded mb-2">
+                        Q
+                      </div>
+                      <p className="text-sm font-medium">{card.front}</p>
+                    </div>
+                    <div className="border-t pt-3">
+                      <div className="inline-block px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded mb-2">
+                        A
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {card.back}
+                      </p>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ) : (
             <div className="space-y-4 max-h-[600px] overflow-y-auto">
-              {uniqueCards.map((card) => (
+              {cards.map((card) => (
                 <FlashcardEditor
                   key={card.id}
                   card={card}
@@ -546,16 +339,6 @@ export function DeckPage() {
                   onDelete={() => handleDeleteCard(card.id)}
                 />
               ))}
-            </div>
-          )}
-
-          {/* Study Selected Button */}
-          {selectedCardIds.size > 0 && (
-            <div className="mt-4 flex justify-end">
-              <Button onClick={handleStartStudy}>
-                <Play className="h-4 w-4 mr-2" />
-                Study Selected ({selectedCardIds.size})
-              </Button>
             </div>
           )}
         </CardContent>

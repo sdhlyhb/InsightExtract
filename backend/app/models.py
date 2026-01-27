@@ -4,7 +4,6 @@ from datetime import datetime
 from typing import List, Optional
 from uuid import uuid4
 
-from pgvector.sqlalchemy import Vector
 from sqlalchemy import JSON, Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
@@ -61,6 +60,7 @@ class DocumentKind(str, enum.Enum):
 
     DOCUMENT = "document"
     FLASHCARDS_CSV = "flashcards-csv"
+    SUMMARY = "summary"
 
 
 class Document(Base):
@@ -88,44 +88,8 @@ class Document(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
-    chunks = relationship("Chunk", back_populates="document", cascade="all, delete-orphan")
     decks = relationship("Deck", back_populates="document", cascade="all, delete-orphan")
     jobs = relationship("Job", back_populates="document", cascade="all, delete-orphan")
-
-
-class Chunk(Base):
-    """Text chunk model for RAG."""
-
-    __tablename__ = "chunks"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    document_id = Column(UUID(as_uuid=True), ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
-    content = Column(Text, nullable=False)
-    token_count = Column(Integer, nullable=False)
-    page_from = Column(Integer, nullable=True)
-    page_to = Column(Integer, nullable=True)
-    section_title = Column(String(500), nullable=True)
-    chunk_metadata = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    # Relationships
-    document = relationship("Document", back_populates="chunks")
-    embedding = relationship("Embedding", back_populates="chunk", uselist=False, cascade="all, delete-orphan")
-
-
-class Embedding(Base):
-    """Vector embedding model."""
-
-    __tablename__ = "embeddings"
-
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    chunk_id = Column(UUID(as_uuid=True), ForeignKey("chunks.id", ondelete="CASCADE"), nullable=False, unique=True)
-    vector = Column(Vector(1536), nullable=False)
-    model = Column(String(100), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    # Relationships
-    chunk = relationship("Chunk", back_populates="embedding")
 
 
 class Deck(Base):

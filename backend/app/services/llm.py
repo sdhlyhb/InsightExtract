@@ -34,91 +34,65 @@ class LLMService:
         Returns:
             Dictionary with both outline and main_points
         """
-        prompt = f"""Analyze the following text extracted from a long PDF/DOCX document. 
-Your task is to produce a highly accurate, concise summary of only the main points.
-These summaries will be used to create study flashcards later, so each point should be:
+        prompt = f"""Extract key information from this document for flashcard creation. Focus on factual, testable content.
 
-• Precise and self-contained  
-• Not overly long  
-• Focused on core ideas, definitions, or actionable facts  
-• Free of fluff, examples, or repetition  
-• Organized in bullet points grouped by topic
+DOCUMENT TEXT:
+{text[:10000]}
 
-If the document contains sections, headings, or conceptual groupings, preserve that structure in the summary.
-
-Document text:
---------------------
-{text[:8000]}
---------------------
-
-You must respond with a JSON object in this EXACT structure:
+Return JSON with this EXACT structure:
 {{
   "outline": {{
-    "title": "Document title",
+    "title": "Document Title",
     "sections": [
-      {{
-        "level": 1,
-        "title": "Main Section",
-        "page": null,
-        "children": [
-          {{
-            "level": 2,
-            "title": "Subsection",
-            "page": null,
-            "children": []
-          }}
-        ]
-      }}
+      {{"level": 1, "title": "Main Topic", "page": null, "children": []}}
     ]
   }},
   "main_points": [
     {{
-      "point": "Clear statement of the main point",
-      "explanation": "Brief explanation or context",
-      "citations": [
-        {{
-          "text": "Supporting quote from document",
-          "page": null
-        }}
-      ]
+      "point": "One core fact or concept",
+      "explanation": "1-2 sentence clarification",
+      "citations": [{{"text": "Direct quote", "page": null}}]
     }}
   ],
   "key_terms": [
-    {{
-      "term": "Term name",
-      "definition": "Clear, concise definition"
-    }}
+    {{"term": "Term", "definition": "Precise definition in 1-2 sentences"}}
   ]
 }}
 
-For the OUTLINE:
-- Identify main topics and themes
-- Preserve document structure (sections, headings)
-- Show logical flow and hierarchy
+CRITICAL RULES:
+1. NO repetition - each fact appears ONCE only
+2. NO filler words - be direct and specific
+3. Extract ONLY factual, testable information
+4. Each main point = ONE discrete concept
+5. Definitions must be clear and complete
+6. Limit to {max_points} most important points
+7. Group related concepts under outline sections
+8. Skip introductions, transitions, and examples
 
-For the MAIN POINTS:
-- Extract up to {max_points} most important points
-- Each point must be precise and self-contained
-- Focus on core ideas, definitions, or actionable facts
-- Free of fluff, examples, or repetition
-- Include brief explanations for context
+FOCUS ON:
+- Definitions and key concepts
+- Cause-and-effect relationships
+- Important processes or procedures
+- Critical data points or statistics
+- Essential classifications or categories
 
-For KEY TERMS (if applicable):
-- List important terms with clear definitions
-- Only include terms that are central to understanding the document
+AVOID:
+- Redundant phrasing
+- Author opinions or interpretations
+- Background context unless essential
+- Vague generalizations
+- Multiple points in one entry
 
-Do NOT include opinions or interpretations.
-Do NOT omit any essential concepts.
-Return ONLY the JSON, no additional text."""
+Return ONLY valid JSON."""
         
         try:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are an expert at analyzing documents and creating structured outlines and summaries for study purposes. You always respond with valid JSON."},
+                    {"role": "system", "content": "You are a precise information extraction system. Extract only factual, testable content without redundancy. Output valid JSON only."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3,
+                temperature=0.2,
                 response_format={"type": "json_object"},
             )
             
@@ -157,53 +131,60 @@ Return ONLY the JSON, no additional text."""
             List of flashcard dictionaries
         """
         outline_text = json.dumps(outline, indent=2)
-        context_text = "\n\n".join(chunks[:10])  # Use first 10 chunks for context
+        context_text = "\n\n".join(chunks[:10]) if chunks else ""
         
-        prompt = f"""Based on the following document outline and content, generate {max_cards} high-quality flashcards.
+        prompt = f"""Create {max_cards} flashcards from this document analysis.
 
-Outline:
+OUTLINE:
 {outline_text}
 
-Content excerpts:
+CONTENT:
 {context_text[:6000]}
 
-Create flashcards in JSON format with this structure:
+Return JSON:
 {{
   "cards": [
     {{
-      "type": "qa",  // Types: "qa", "cloze", "truefalse"
-      "front": "Question text",
-      "back": "Answer text",
-      "tags": ["section_name", "topic"],
-      "citations": [
-        {{
-          "text": "Relevant quote from document",
-          "page": 1
-        }}
-      ]
+      "type": "qa",
+      "front": "Concise question testing ONE concept",
+      "back": "Direct, complete answer",
+      "tags": ["topic"],
+      "citations": [{{"text": "Supporting quote", "page": null}}]
     }}
   ]
 }}
 
-Guidelines:
-1. Create a mix of card types (Q/A, cloze deletions, true/false)
-2. Each card should test ONE specific concept
-3. Include citations from the document content
-4. Avoid double-barreled questions
-5. Make answers concise but complete
-6. Tag cards by their section/topic
-7. Prioritize key concepts and important details
+FLASHCARD RULES:
+1. Each card tests EXACTLY ONE concept
+2. Questions must be specific and unambiguous
+3. Answers must be complete but concise (2-4 sentences max)
+4. Use varied card types: 60% Q&A, 30% cloze, 10% true/false
+5. NO double-barreled questions
+6. NO vague or opinion-based questions
+7. Focus on facts, definitions, processes, relationships
 
-Return ONLY the JSON, no additional text."""
+CARD TYPES:
+- "qa": Q&A format with clear question and answer
+- "cloze": Statement with {{{{blank}}}} for fill-in
+- "truefalse": Statement with true/false answer + explanation
+
+PRIORITIES (create cards for):
+1. Key definitions and terminology
+2. Important processes or procedures  
+3. Cause-and-effect relationships
+4. Critical distinctions or comparisons
+5. Essential facts and data points
+
+Return ONLY valid JSON with {max_cards} cards."""
         
         try:
             response = await self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": "You are an expert educator who creates effective flashcards for learning and retention."},
+                    {"role": "system", "content": "You are an expert flashcard creator. Generate precise, testable questions that reinforce learning. Output valid JSON only."},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.7,
+                temperature=0.5,
                 response_format={"type": "json_object"},
             )
             

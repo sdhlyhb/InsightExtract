@@ -54,10 +54,6 @@ class Settings(BaseSettings):
 
     # Processing
     max_file_size_mb: int = 50
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
-    embedding_model: str = "text-embedding-3-small"
-    embedding_dimensions: int = 1536
 
     # Monitoring
     sentry_dsn: str = Field(default="")

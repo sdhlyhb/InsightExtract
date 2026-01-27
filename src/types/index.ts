@@ -2,7 +2,7 @@ export interface Document {
   id: string;
   title: string;
   sourceType: "pdf" | "text" | "url" | "docx";
-  kind?: "document" | "flashcards-csv";
+  kind?: "document" | "flashcards-csv" | "summary";
   status: "uploaded" | "processing" | "completed" | "failed";
   createdAt: string;
   updatedAt: string;

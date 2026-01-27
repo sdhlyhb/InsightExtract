@@ -96,26 +96,8 @@ async def create_document(
     await db.commit()
     await db.refresh(document)
 
-    job = Job(
-        document_id=document.id,
-        type="extract",
-        status="pending",
-    )
-    db.add(job)
-    await db.commit()
-    await db.refresh(job)
-
-    # Enqueue background processing task
-    try:
-        redis = await get_redis_pool()
-        await redis.enqueue_job(
-            "process_document",
-            str(document.id),
-            content,
-        )
-    except Exception as e:
-        print(f"Failed to enqueue processing task: {e}")
-        # Continue anyway - job is created in DB
+    # Note: No background processing task is enqueued here
+    # Frontend uses direct /extract-text and /analyze-text endpoints instead
 
     return document
 
@@ -403,10 +385,10 @@ async def save_flashcards_csv(
     
     # Validate MIME type
     mime_type = data.get("mimeType", "text/csv")
-    if mime_type != "text/csv":
+    if mime_type not in ["text/csv", "application/json"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only text/csv MIME type is supported",
+            detail="Only text/csv and application/json MIME types are supported",
         )
     
     # Validate size
@@ -422,11 +404,17 @@ async def save_flashcards_csv(
     card_count = meta.get("cardCount", 0)
     step2_digest = meta.get("step2Digest")
     
+    # Determine document kind based on MIME type or meta
+    if mime_type == "application/json" or meta.get("kind") == "summary":
+        doc_kind = DocumentKind.SUMMARY
+    else:
+        doc_kind = DocumentKind.FLASHCARDS_CSV
+    
     # Create document record
     document = Document(
         title=data["name"],
         source_type=DocumentSourceType.TEXT,
-        kind=DocumentKind.FLASHCARDS_CSV,
+        kind=doc_kind,
         mime_type=mime_type,
         file_size=size,
         content=data["content"],

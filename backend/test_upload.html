@@ -501,13 +501,23 @@ Please respond in JSON format with this structure:
                 analysisHtml += '<ul style="margin-bottom: 25px;">';
                 data.main_points.forEach(point => {
                     const pointText = typeof point === 'string' ? point : (point.point || JSON.stringify(point));
-                    analysisHtml += `<li style="margin: 8px 0; line-height: 1.6;">${escapeHtml(pointText)}`;
+                    analysisHtml += `<li style="margin: 8px 0; line-height: 1.6;"><strong>${escapeHtml(pointText)}</strong>`;
                     if (point.explanation) {
                         analysisHtml += `<br><span style="color: #666; font-size: 14px;">${escapeHtml(point.explanation)}</span>`;
                     }
                     analysisHtml += `</li>`;
                 });
                 analysisHtml += '</ul>';
+            }
+
+            if (data.key_terms && data.key_terms.length > 0) {
+                analysisHtml += '<h4 style="color: #333; margin-bottom: 15px;">🔑 Key Terms:</h4>';
+                analysisHtml += '<dl style="margin-bottom: 25px;">';
+                data.key_terms.forEach(term => {
+                    analysisHtml += `<dt style="font-weight: bold; color: #667eea; margin-top: 10px;">${escapeHtml(term.term)}</dt>`;
+                    analysisHtml += `<dd style="margin-left: 20px; color: #666; line-height: 1.5;">${escapeHtml(term.definition)}</dd>`;
+                });
+                analysisHtml += '</dl>';
             }
 
             if (data.outline) {

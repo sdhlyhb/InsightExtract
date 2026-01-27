@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Play, BookOpen, Calendar, AlertCircle } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import type { Deck } from "@/types";
@@ -168,16 +168,6 @@ export function DecksListPage() {
                     )}
                   </div>
                 )}
-
-                <Button
-                  className="w-full"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/study/${deck.id}`);
-                  }}>
-                  <Play className="h-4 w-4 mr-2" />
-                  Study Now
-                </Button>
               </CardContent>
             </Card>
           ))}

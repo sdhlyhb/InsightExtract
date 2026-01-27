@@ -6,7 +6,7 @@ from arq.worker import run_worker
 from arq.connections import RedisSettings
 
 from app.config import get_settings
-from app.tasks.pipeline import process_document, generate_flashcards_task
+from app.tasks.pipeline import generate_flashcards_task
 
 # Set up logging
 logging.basicConfig(
@@ -20,7 +20,7 @@ settings = get_settings()
 
 class WorkerSettings:
     """Arq worker settings."""
-    functions = [process_document, generate_flashcards_task]
+    functions = [generate_flashcards_task]
     redis_settings = RedisSettings.from_dsn(settings.redis_url)
     job_timeout = 600  # 10 minutes
     max_jobs = 10
