@@ -68,7 +68,7 @@ AI summarization without blocking the API."
 Include proper error handling and support for FormData uploads."
 
 "Build a responsive FileDropzone component using react-dropzone with
-Tailwind CSS. Support both click and drag-and-drop."
+Tailwind CSS. Support both click and upload file"
 ```
 
 #### 4. AI Integration
