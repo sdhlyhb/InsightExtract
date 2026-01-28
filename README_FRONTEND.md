@@ -103,7 +103,7 @@ src/
 
 ## Key Components
 
-- **FileDropzone** - Drag & drop PDF upload
+- **FileDropzone** - PDF upload
 - **PdfPreview** - PDF viewer with navigation
 - **OutlineTree** - Hierarchical document outline
 - **CitationPopover** - Interactive citations with quotes

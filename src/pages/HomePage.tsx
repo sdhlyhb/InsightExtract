@@ -731,7 +731,7 @@ export function HomePage() {
                   <label htmlFor="file-upload" className="cursor-pointer block">
                     <FileText className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-2 sm:mb-3 text-muted-foreground opacity-50" />
                     <p className="text-xs sm:text-sm font-medium mb-1">
-                      Click to select or drag & drop
+                      Click to select
                     </p>
                     <p className="text-[10px] sm:text-xs text-muted-foreground">
                       PDF or Word • Max 20MB

@@ -1,5 +1,9 @@
 # InsightExtract
 
+
+https://github.com/user-attachments/assets/318b957f-f6f5-4322-a441-66f98136cb9b
+
+
 A full-stack AI-powered learning platform that transforms PDFs and documents into structured knowledge, intelligent summaries, and study-ready flashcards with spaced repetition.
 
 **Built with AI-assisted development** - See [AI_ASSISTED_DEV_DOC.md](./AI_ASSISTED_DEV_DOC.md) for details on AI tools and workflows used.
