@@ -62,7 +62,7 @@ export function useUpdateCard() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Flashcard> }) =>
       cardsApi.update(id, data),
-    onSuccess: (updatedCard) => {
+    onSuccess: (updatedCard: Flashcard) => {
       void queryClient.invalidateQueries({
         queryKey: ["decks", updatedCard.deckId, "cards"],
       });
@@ -76,7 +76,7 @@ export function useReviewCard() {
   return useMutation({
     mutationFn: ({ id, quality }: { id: string; quality: number }) =>
       cardsApi.review(id, quality),
-    onSuccess: (updatedCard) => {
+    onSuccess: (updatedCard: Flashcard) => {
       void queryClient.invalidateQueries({
         queryKey: ["decks", updatedCard.deckId, "cards"],
       });

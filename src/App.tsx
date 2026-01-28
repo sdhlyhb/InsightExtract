@@ -6,6 +6,7 @@ import { DocumentPage } from "./pages/DocumentPage";
 import { DeckPage } from "./pages/DeckPage";
 import { DecksListPage } from "./pages/DecksListPage";
 import { FlashcardsCreatePage } from "./pages/FlashcardsCreatePage";
+import { StudySessionPage } from "./pages/StudySessionPage";
 import { Layout } from "./components/Layout";
 
 const queryClient = new QueryClient({
@@ -33,6 +34,7 @@ function App() {
             />
             <Route path="decks" element={<DecksListPage />} />
             <Route path="decks/:id" element={<DeckPage />} />
+            <Route path="study/:deckId" element={<StudySessionPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -17,7 +17,7 @@ class ApiClient {
     };
 
     if (!(options.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
+      (headers as Record<string, string>)["Content-Type"] = "application/json";
     }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {

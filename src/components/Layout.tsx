@@ -7,7 +7,6 @@ import {
   Sparkles,
   Code2,
   Github,
-  Twitter,
   Mail,
 } from "lucide-react";
 import { Button } from "./ui/Button";

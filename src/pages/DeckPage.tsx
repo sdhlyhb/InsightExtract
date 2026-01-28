@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, AlertCircle } from "lucide-react";
+import { ArrowLeft, Download, AlertCircle, GraduationCap } from "lucide-react";
 import { FlashcardEditor } from "@/components/FlashcardEditor";
 import {
   Card,
@@ -135,6 +135,12 @@ export function DeckPage() {
     }
   };
 
+  const handleStartStudy = () => {
+    if (deck) {
+      navigate(`/study/${deck.id}`);
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -153,9 +159,12 @@ export function DeckPage() {
   if (error || !deck) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/decks")}
+          className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
+          Back to All Decks
         </Button>
         <Card className="border-destructive">
           <CardHeader>
@@ -226,11 +235,11 @@ export function DeckPage() {
           onClick={() =>
             deck.documentId
               ? navigate(`/documents/${deck.documentId}`)
-              : navigate("/")
+              : navigate("/decks")
           }
           className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          {deck.documentId ? "Back to Document" : "Back to Home"}
+          {deck.documentId ? "Back to Document" : "Back to All Decks"}
         </Button>
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
           <div>
@@ -246,6 +255,10 @@ export function DeckPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button onClick={handleStartStudy}>
+              <GraduationCap className="h-4 w-4 mr-2" />
+              Start Study
+            </Button>
             <Button variant="outline" onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Export

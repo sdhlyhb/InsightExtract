@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, Link as LinkIcon } from "lucide-react";
+import { Upload, FileText } from "lucide-react";
 import { Card } from "./ui/Card";
 import { Button } from "./ui/Button";
 import { cn } from "@/utils/cn";
@@ -41,7 +41,8 @@ export function FileDropzone({
     <Card
       {...getRootProps()}
       className={cn(
-        "border-2 border-dashed cursor-pointer transition-colors hover:border-primary",
+        "border-2 border-dashed transition-colors hover:border-primary",
+        !isLoading && "cursor-pointer",
         isDragActive && "border-primary bg-primary/5",
         isLoading && "opacity-50 cursor-not-allowed",
         className,

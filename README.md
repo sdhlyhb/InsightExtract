@@ -2,6 +2,8 @@
 
 A full-stack application for extracting insights from documents using AI, with automated flashcard generation and study management.
 
+**Built with AI-assisted development** - See [AI_ASSISTED_DEV_DOC.md](./AI_ASSISTED_DEV_DOC.md) for details on AI tools and workflows used.
+
 ## 🏗️ Architecture
 
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
@@ -36,7 +38,11 @@ cp .env.example .env
 3. **Start all services**
 
 ```bash
-docker-compose up -d
+# Option 1: Using the helper script (recommended)
+./docker-dev.sh up -d
+
+# Option 2: Using docker compose directly
+docker compose up -d
 ```
 
 This will start:
@@ -47,7 +53,17 @@ This will start:
 - Redis: localhost:6379
 - Background Worker
 
-4. **View logs**
+4. **Manage services**
+
+```bash
+# Using the helper script from any directory
+./docker-dev.sh ps              # Check status
+./docker-dev.sh logs -f         # View logs (Ctrl+C to exit)
+./docker-dev.sh restart api     # Restart specific service
+./docker-dev.sh down            # Stop all services
+```
+
+5. **View logs**
 
 ```bash
 docker-compose logs -f
@@ -154,20 +170,35 @@ Visit http://localhost:5173
 
 ## 🧪 Testing
 
+### Running Tests Locally
+
 ```bash
-# Backend tests
+# Backend integration tests (22 tests, 56% coverage)
 cd backend
-pytest
+pytest tests/ -v
+
+# With coverage report
+pytest tests/ -v --cov=app --cov-report=html
+# Open htmlcov/index.html to view coverage
+
+# Run specific test file
+pytest tests/test_documents_api.py -v
 
 # Frontend tests
 npm run test
 
-# Integration tests
-pytest tests/integration/
-
-# With coverage
-pytest --cov=app --cov-report=html
+# Lint and type check
+npm run lint
+tsc --noEmit
 ```
+
+### Test Structure
+
+- **Integration Tests**: `backend/tests/` - 22 tests covering all API endpoints
+  - `test_documents_api.py` - Document upload, parsing, summarization
+  - `test_decks_api.py` - Deck and flashcard management
+  - `test_health.py` - Health check endpoints
+- **Frontend Tests**: `src/**/*.test.ts` - Component and utility tests
 
 See [README_TESTING.md](./README_TESTING.md) for comprehensive testing documentation.
 
@@ -212,14 +243,49 @@ InsightExtract/
 
 ## 📝 API Documentation
 
-Once running, visit:
+The API follows the OpenAPI 3.1.0 specification. Documentation is available in multiple formats:
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- **Interactive Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+- **OpenAPI Specification**: [`openapi.json`](./openapi.json)
+
+### Key API Endpoints
+
+- `POST /api/documents` - Upload and process documents
+- `GET /api/documents` - List all documents
+- `GET /api/documents/{id}` - Get document details
+- `POST /api/documents/{id}/generate` - Generate flashcards
+- `GET /api/decks` - List all flashcard decks
+- `POST /api/decks` - Create a new deck
+- `GET /api/decks/{id}/cards` - Get cards in a deck
+- `POST /api/cards/{id}/review` - Review a flashcard
+
+The OpenAPI specification serves as the contract between frontend and backend development.
+
+## 🧪 Testing
+
+### Running Tests Locally
+
+See [README_TESTING.md](./README_TESTING.md) for comprehensive testing documentation.
 
 ## 🤝 Contributing
 
-See [README_TESTING.md](./README_TESTING.md) for development and testing guidelines.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests to ensure everything works
+5. Commit your changes (`git commit -m 'Add amazing feature'`)
+6. Push to the branch (`git push origin feature/amazing-feature`)
+7. Open a Pull Request
+
+See [AGENTS.md](./AGENTS.md) for information on AI-assisted development workflow.
+
+## 📚 Documentation
+
+- **Setup Guide**: [SETUP.md](./SETUP.md) - Detailed setup instructions for new users
+- **Testing Guide**: [README_TESTING.md](./README_TESTING.md) - Comprehensive testing documentation
+- **AI Development**: [AGENTS.md](./AGENTS.md) - AI tools and MCP integration
+- **API Specification**: [openapi.json](./openapi.json) - OpenAPI 3.1.0 contract
 
 ## 📄 License
 

@@ -84,10 +84,10 @@ export function FlashcardEditor({
           </div>
         ) : (
           <div className="space-y-4">
-            <div>
+            <div className="pt-4">
               <label
                 htmlFor="front"
-                className="text-xs font-medium text-muted-foreground uppercase mb-2 block">
+                className="text-xs font-medium text-muted-foreground uppercase pt-4 mb-2 block">
                 Question
               </label>
               <textarea
