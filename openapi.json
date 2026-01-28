@@ -1,0 +1,1848 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "InsightExtract API",
+        "description": "API for PDF-to-flashcard conversion with spaced repetition",
+        "version": "0.1.0"
+    },
+    "paths": {
+        "/api/documents": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Create Document",
+                "description": "Create a new document by uploading a file.",
+                "operationId": "create_document_api_documents_post",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_create_document_api_documents_post"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "List Documents",
+                "description": "List all documents.",
+                "operationId": "list_documents_api_documents_get",
+                "parameters": [
+                    {
+                        "name": "skip",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "title": "Skip"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DocumentResponse"
+                                    },
+                                    "title": "Response List Documents Api Documents Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/extract-text": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Extract Text Only",
+                "description": "Extract text from PDF or DOCX without any AI processing or database storage.\nSimple endpoint for testing document text extraction only.",
+                "operationId": "extract_text_only_api_documents_extract_text_post",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_extract_text_only_api_documents_extract_text_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Extract Text Only Api Documents Extract Text Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/analyze-text": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Analyze Text",
+                "description": "Analyze text with AI to generate outline and main points.\nMakes a single API call to OpenAI.",
+                "operationId": "analyze_text_api_documents_analyze_text_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AnalyzeTextRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Analyze Text Api Documents Analyze Text Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/recent": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Get Recent Documents",
+                "description": "Get recent documents including flashcard CSVs.",
+                "operationId": "get_recent_documents_api_documents_recent_get",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "title": "Limit"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DocumentResponse"
+                                    },
+                                    "title": "Response Get Recent Documents Api Documents Recent Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/{document_id}": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Get Document",
+                "description": "Get document by ID.",
+                "operationId": "get_document_api_documents__document_id__get",
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Document Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Delete Document",
+                "description": "Delete a document and all associated data.",
+                "operationId": "delete_document_api_documents__document_id__delete",
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Document Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/{document_id}/outline": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Get Document Outline",
+                "description": "Get document outline and main points.",
+                "operationId": "get_document_outline_api_documents__document_id__outline_get",
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Document Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentOutline"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/{document_id}/generate": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Generate Flashcards",
+                "description": "Trigger flashcard generation for a document.",
+                "operationId": "generate_flashcards_api_documents__document_id__generate_post",
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Document Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Generate Flashcards Api Documents  Document Id  Generate Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/{document_id}/decks": {
+            "get": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Get Document Decks",
+                "description": "Get all decks for a document.",
+                "operationId": "get_document_decks_api_documents__document_id__decks_get",
+                "parameters": [
+                    {
+                        "name": "document_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Document Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DeckResponse"
+                                    },
+                                    "title": "Response Get Document Decks Api Documents  Document Id  Decks Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/documents/flashcards": {
+            "post": {
+                "tags": [
+                    "documents"
+                ],
+                "summary": "Save Flashcards Csv",
+                "description": "Save flashcards CSV to database.",
+                "operationId": "save_flashcards_csv_api_documents_flashcards_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "title": "Data"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Save Flashcards Csv Api Documents Flashcards Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/decks": {
+            "get": {
+                "tags": [
+                    "decks"
+                ],
+                "summary": "List Decks",
+                "description": "List all decks with their card counts.",
+                "operationId": "list_decks_api_decks_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "#/components/schemas/DeckResponse"
+                                    },
+                                    "type": "array",
+                                    "title": "Response List Decks Api Decks Get"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "decks"
+                ],
+                "summary": "Create Deck",
+                "description": "Create a new deck with cards.",
+                "operationId": "create_deck_api_decks_post",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeckCreate"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeckResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/decks/{deck_id}": {
+            "get": {
+                "tags": [
+                    "decks"
+                ],
+                "summary": "Get Deck",
+                "description": "Get deck by ID.",
+                "operationId": "get_deck_api_decks__deck_id__get",
+                "parameters": [
+                    {
+                        "name": "deck_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Deck Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeckResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/decks/{deck_id}/cards": {
+            "get": {
+                "tags": [
+                    "decks"
+                ],
+                "summary": "Get Deck Cards",
+                "description": "Get all cards in a deck.",
+                "operationId": "get_deck_cards_api_decks__deck_id__cards_get",
+                "parameters": [
+                    {
+                        "name": "deck_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Deck Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CardResponse"
+                                    },
+                                    "title": "Response Get Deck Cards Api Decks  Deck Id  Cards Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/decks/{deck_id}/export": {
+            "post": {
+                "tags": [
+                    "decks"
+                ],
+                "summary": "Export Deck",
+                "description": "Export deck to CSV or Anki format.",
+                "operationId": "export_deck_api_decks__deck_id__export_post",
+                "parameters": [
+                    {
+                        "name": "deck_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Deck Id"
+                        }
+                    },
+                    {
+                        "name": "format",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "csv",
+                            "title": "Format"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "title": "Response Export Deck Api Decks  Deck Id  Export Post"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cards/{card_id}": {
+            "patch": {
+                "tags": [
+                    "cards"
+                ],
+                "summary": "Update Card",
+                "description": "Update card content.",
+                "operationId": "update_card_api_cards__card_id__patch",
+                "parameters": [
+                    {
+                        "name": "card_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Card Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CardUpdate"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CardResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "cards"
+                ],
+                "summary": "Delete Card",
+                "description": "Delete a card and its associated reviews.",
+                "operationId": "delete_card_api_cards__card_id__delete",
+                "parameters": [
+                    {
+                        "name": "card_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Card Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful Response"
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cards/{card_id}/review": {
+            "post": {
+                "tags": [
+                    "cards"
+                ],
+                "summary": "Review Card",
+                "description": "Record a card review and update SRS parameters.",
+                "operationId": "review_card_api_cards__card_id__review_post",
+                "parameters": [
+                    {
+                        "name": "card_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Card Id"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CardReview"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CardResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jobs/{job_id}": {
+            "get": {
+                "tags": [
+                    "jobs"
+                ],
+                "summary": "Get Job",
+                "description": "Get job status by ID.",
+                "operationId": "get_job_api_jobs__job_id__get",
+                "parameters": [
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Job Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JobResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jobs/{job_id}/stream": {
+            "get": {
+                "tags": [
+                    "jobs"
+                ],
+                "summary": "Stream Job Progress",
+                "description": "Stream job progress via Server-Sent Events.",
+                "operationId": "stream_job_progress_api_jobs__job_id__stream_get",
+                "parameters": [
+                    {
+                        "name": "job_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Job Id"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/search": {
+            "get": {
+                "tags": [
+                    "search"
+                ],
+                "summary": "Search Documents",
+                "description": "Search across all documents using vector similarity.",
+                "operationId": "search_documents_api_search_get",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1,
+                            "title": "Query"
+                        }
+                    },
+                    {
+                        "name": "k",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 100,
+                            "minimum": 1,
+                            "default": 10,
+                            "title": "K"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/SearchResult"
+                                    },
+                                    "title": "Response Search Documents Api Search Get"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/": {
+            "get": {
+                "summary": "Root",
+                "description": "Root endpoint.",
+                "operationId": "root__get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "summary": "Health",
+                "description": "Health check endpoint.",
+                "operationId": "health_health_get",
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "AnalyzeTextRequest": {
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Text"
+                    },
+                    "max_points": {
+                        "anyOf": [
+                            {
+                                "type": "integer",
+                                "maximum": 50.0,
+                                "minimum": 1.0
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Max Points",
+                        "default": 10
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "text"
+                ],
+                "title": "AnalyzeTextRequest",
+                "description": "Request schema for text analysis."
+            },
+            "Body_create_document_api_documents_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File"
+                    },
+                    "source_type": {
+                        "type": "string",
+                        "title": "Source Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file",
+                    "source_type"
+                ],
+                "title": "Body_create_document_api_documents_post"
+            },
+            "Body_extract_text_only_api_documents_extract_text_post": {
+                "properties": {
+                    "file": {
+                        "type": "string",
+                        "format": "binary",
+                        "title": "File"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "file"
+                ],
+                "title": "Body_extract_text_only_api_documents_extract_text_post"
+            },
+            "CardCreateInput": {
+                "properties": {
+                    "front": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Front"
+                    },
+                    "back": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Back"
+                    },
+                    "type": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FlashcardType"
+                            }
+                        ],
+                        "default": "qa"
+                    },
+                    "tags": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Tags",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "front",
+                    "back"
+                ],
+                "title": "CardCreateInput",
+                "description": "Card creation input for deck creation."
+            },
+            "CardResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "deck_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Deck Id"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/FlashcardType"
+                    },
+                    "front": {
+                        "type": "string",
+                        "title": "Front"
+                    },
+                    "back": {
+                        "type": "string",
+                        "title": "Back"
+                    },
+                    "citations": {
+                        "items": {
+                            "type": "object"
+                        },
+                        "type": "array",
+                        "title": "Citations"
+                    },
+                    "tags": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Tags"
+                    },
+                    "ease": {
+                        "type": "number",
+                        "title": "Ease"
+                    },
+                    "interval": {
+                        "type": "integer",
+                        "title": "Interval"
+                    },
+                    "repetition": {
+                        "type": "integer",
+                        "title": "Repetition"
+                    },
+                    "due_date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Due Date"
+                    },
+                    "last_reviewed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Last Reviewed At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "deck_id",
+                    "type",
+                    "front",
+                    "back",
+                    "citations",
+                    "tags",
+                    "ease",
+                    "interval",
+                    "repetition",
+                    "due_date"
+                ],
+                "title": "CardResponse",
+                "description": "Card response schema."
+            },
+            "CardReview": {
+                "properties": {
+                    "quality": {
+                        "type": "integer",
+                        "maximum": 5.0,
+                        "minimum": 0.0,
+                        "title": "Quality"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "quality"
+                ],
+                "title": "CardReview",
+                "description": "Card review schema."
+            },
+            "CardUpdate": {
+                "properties": {
+                    "front": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Front"
+                    },
+                    "back": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Back"
+                    },
+                    "tags": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "type": "string"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tags"
+                    }
+                },
+                "type": "object",
+                "title": "CardUpdate",
+                "description": "Card update schema."
+            },
+            "Citation": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "title": "Id"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "title": "Page"
+                    },
+                    "quote": {
+                        "type": "string",
+                        "title": "Quote"
+                    },
+                    "context": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Context"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "page",
+                    "quote"
+                ],
+                "title": "Citation",
+                "description": "Citation schema."
+            },
+            "DeckCreate": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "maxLength": 500,
+                        "minLength": 1,
+                        "title": "Title"
+                    },
+                    "documentId": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Documentid"
+                    },
+                    "cards": {
+                        "items": {
+                            "$ref": "#/components/schemas/CardCreateInput"
+                        },
+                        "type": "array",
+                        "title": "Cards",
+                        "default": []
+                    },
+                    "tags": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Tags",
+                        "default": []
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "title": "DeckCreate",
+                "description": "Deck creation schema."
+            },
+            "DeckResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "document_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Document Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "card_count": {
+                        "type": "integer",
+                        "title": "Card Count"
+                    },
+                    "due_count": {
+                        "type": "integer",
+                        "title": "Due Count"
+                    },
+                    "tags": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Tags"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "card_count",
+                    "due_count",
+                    "tags",
+                    "created_at"
+                ],
+                "title": "DeckResponse",
+                "description": "Deck response schema."
+            },
+            "DocumentOutline": {
+                "properties": {
+                    "document_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Document Id"
+                    },
+                    "main_points": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array",
+                        "title": "Main Points"
+                    },
+                    "outline": {
+                        "items": {
+                            "$ref": "#/components/schemas/OutlineNode"
+                        },
+                        "type": "array",
+                        "title": "Outline"
+                    },
+                    "citations": {
+                        "items": {
+                            "$ref": "#/components/schemas/Citation"
+                        },
+                        "type": "array",
+                        "title": "Citations"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "document_id",
+                    "main_points",
+                    "outline",
+                    "citations"
+                ],
+                "title": "DocumentOutline",
+                "description": "Document outline schema."
+            },
+            "DocumentResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "source_type": {
+                        "$ref": "#/components/schemas/DocumentSourceType"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/DocumentStatus"
+                    },
+                    "kind": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Kind"
+                    },
+                    "file_size": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "File Size"
+                    },
+                    "page_count": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Page Count"
+                    },
+                    "mime_type": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Mime Type"
+                    },
+                    "content": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Content"
+                    },
+                    "source_file_name": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Source File Name"
+                    },
+                    "card_count": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Card Count"
+                    },
+                    "meta": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Meta"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "title",
+                    "source_type",
+                    "status",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "DocumentResponse",
+                "description": "Document response schema."
+            },
+            "DocumentSourceType": {
+                "type": "string",
+                "enum": [
+                    "pdf",
+                    "docx",
+                    "text",
+                    "url"
+                ],
+                "title": "DocumentSourceType",
+                "description": "Document source type enum."
+            },
+            "DocumentStatus": {
+                "type": "string",
+                "enum": [
+                    "uploaded",
+                    "processing",
+                    "completed",
+                    "failed"
+                ],
+                "title": "DocumentStatus",
+                "description": "Document processing status enum."
+            },
+            "FlashcardType": {
+                "type": "string",
+                "enum": [
+                    "qa",
+                    "cloze",
+                    "truefalse"
+                ],
+                "title": "FlashcardType",
+                "description": "Flashcard type enum."
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "JobResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Id"
+                    },
+                    "document_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Document Id"
+                    },
+                    "type": {
+                        "$ref": "#/components/schemas/JobType"
+                    },
+                    "status": {
+                        "$ref": "#/components/schemas/JobStatus"
+                    },
+                    "progress": {
+                        "type": "integer",
+                        "title": "Progress"
+                    },
+                    "message": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Message"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "completed_at": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Completed At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "id",
+                    "document_id",
+                    "type",
+                    "status",
+                    "progress",
+                    "created_at"
+                ],
+                "title": "JobResponse",
+                "description": "Job response schema."
+            },
+            "JobStatus": {
+                "type": "string",
+                "enum": [
+                    "pending",
+                    "running",
+                    "completed",
+                    "failed"
+                ],
+                "title": "JobStatus",
+                "description": "Job status enum."
+            },
+            "JobType": {
+                "type": "string",
+                "enum": [
+                    "extract",
+                    "embed",
+                    "summarize",
+                    "cards"
+                ],
+                "title": "JobType",
+                "description": "Job type enum."
+            },
+            "OutlineNode": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "page": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Page"
+                    },
+                    "children": {
+                        "anyOf": [
+                            {
+                                "items": {
+                                    "$ref": "#/components/schemas/OutlineNode"
+                                },
+                                "type": "array"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Children"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "title"
+                ],
+                "title": "OutlineNode",
+                "description": "Outline node schema."
+            },
+            "SearchResult": {
+                "properties": {
+                    "chunk_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Chunk Id"
+                    },
+                    "document_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Document Id"
+                    },
+                    "document_title": {
+                        "type": "string",
+                        "title": "Document Title"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "page_from": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Page From"
+                    },
+                    "page_to": {
+                        "anyOf": [
+                            {
+                                "type": "integer"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Page To"
+                    },
+                    "score": {
+                        "type": "number",
+                        "title": "Score"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "chunk_id",
+                    "document_id",
+                    "document_title",
+                    "content",
+                    "page_from",
+                    "page_to",
+                    "score"
+                ],
+                "title": "SearchResult",
+                "description": "Search result schema."
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
+            }
+        }
+    }
+}
